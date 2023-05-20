@@ -65,7 +65,7 @@ class Main extends CI_Controller {
 
             $this->session->set_userdata($session_data);  //session 등록
 
-            header("Location: http://34.105.106.219/coupangProject");
+            //header("Location: http://34.105.106.219/coupangProject");
             exit;
          } else {
             echo "Error 내용:".$response;
