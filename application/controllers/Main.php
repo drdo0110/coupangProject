@@ -50,15 +50,14 @@ class Main extends CI_Controller {
          $headers = array();
          $response = curl_exec ($ch);
          $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-         echo "status_code:".$status_code;
 
          curl_close ($ch);
 
          if($status_code == 200) {
             $response = json_decode($response);
-print_r($response);exit;
+
             $session_data = [
-                'access_token'      => 1
+                'access_token'      => $response->access_token
             ];
 
             $this->session->set_userdata($session_data);  //session 등록
@@ -70,25 +69,29 @@ print_r($response);exit;
     }
 
     public function test() {
-          $token = "YOUR_ACCESS_TOKEN";
-          $header = "Bearer ".$token; // Bearer 다음에 공백 추가
-          $url = "https://openapi.naver.com/v1/nid/me";
-          $is_post = false;
-          $ch = curl_init();
-          curl_setopt($ch, CURLOPT_URL, $url);
-          curl_setopt($ch, CURLOPT_POST, $is_post);
-          curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-          $headers = array();
-          $headers[] = "Authorization: ".$header;
-          curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-          $response = curl_exec ($ch);
-          $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-          echo "status_code:".$status_code."<br>";
-          curl_close ($ch);
-          if($status_code == 200) {
-            echo $response;
-          } else {
-            echo "Error 내용:".$response;
-          }
+        print_r($this->session->userdata['access_token']);
+        exit;
+
+
+        $token = "YOUR_ACCESS_TOKEN";
+        $header = "Bearer ".$token; // Bearer 다음에 공백 추가
+        $url = "https://openapi.naver.com/v1/nid/me";
+        $is_post = false;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, $is_post);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $headers = array();
+        $headers[] = "Authorization: ".$header;
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        $response = curl_exec ($ch);
+        $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        echo "status_code:".$status_code."<br>";
+        curl_close ($ch);
+        if($status_code == 200) {
+        echo $response;
+        } else {
+        echo "Error 내용:".$response;
+        }
     }
 }
