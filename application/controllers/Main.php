@@ -67,8 +67,8 @@ class Main extends CI_Controller {
     }
 
     public function test() {
-        $access_token = $_COOKIE['access_token'];
-        print_r($access_token);
+        //$access_token = $_COOKIE['access_token'];
+        print_r($_COOKIE);
         exit;
         $token = $access_token;
         $header = "Bearer ".$token; // Bearer 다음에 공백 추가
