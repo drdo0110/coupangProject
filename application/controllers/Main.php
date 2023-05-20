@@ -82,6 +82,7 @@ class Main extends CI_Controller {
         curl_close ($ch);
 
         if($status_code == 200) {
+            echo $response;
             $response = json_decode($response);
 
             setcookie("email", $response->email, time() + 3600, "/");
