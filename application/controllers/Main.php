@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Main extends CI_Controller {
     const CLIENT_ID = 'FbIzOc0TtOQtZYtgtk5l';
     const CLIENT_SECRET = 'RJhh1d171p';
-    const NAVER_LOGIN_CALLBACK_URL = '/main/naver_login_callback';
+    const NAVER_LOGIN_CALLBACK_URL = '/naver_login_callback';
 
     public function index() {
         $data = [];
