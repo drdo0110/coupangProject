@@ -96,7 +96,7 @@
                 </div>
                 <div class="textarea-style">
                     <!-- <textarea name="" id="content"></textarea> -->
-                    <iframe style="width: 100%;height: 100%;" src="https://www.naver.com"></iframe>
+                    <iframe style="width: 100%;height: 100%;" src="https://kin.naver.com/qna/detail.naver?d1id=5&dirId=5030104&docId=446230988&qb=7LaU7LKc&enc=utf8&section=kin.qna.all&rank=6&search_sort=3&spq=0"></iframe>
                     <div style="float:right;">
                         <button id="reset">RESET</button>
                         <button id="copy">COPY</button>
