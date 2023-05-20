@@ -61,6 +61,7 @@
     <body>
         <div class="header">
             <div style="float: right;">
+                <?php print_r($_SESSION); ?>
                 <?php if (isset($_COOKIE['email']) && isset($_COOKIE['name'])): ?>
                     <div style="float: left;margin: 5px 10px 0 0;"><?php echo $_COOKIE['email'] . '(' . $_COOKIE['name'] . ')'?></div>
                     <a style="float: right;" class="naver_login" href="/coupangProject/main/naver_logout"><img style="height: 35px;" src="http://static.nid.naver.com/oauth/small_g_out.PNG"/></a>
