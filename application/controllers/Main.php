@@ -67,10 +67,9 @@ class Main extends CI_Controller {
     }
 
     public function test() {
-        print_r($_COOKIE);
-        exit;
+        $access_token = $_COOKIE['access_token'];
 
-        $token = "YOUR_ACCESS_TOKEN";
+        $token = $access_token;
         $header = "Bearer ".$token; // Bearer 다음에 공백 추가
         $url = "https://openapi.naver.com/v1/nid/me";
         $is_post = false;
