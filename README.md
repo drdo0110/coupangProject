@@ -1,1 +1,1 @@
-# coupangProject
+# project
