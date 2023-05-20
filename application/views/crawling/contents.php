@@ -63,8 +63,10 @@
             <div style="float: right;">
                 <?php if (isset($_COOKIE['email']) && isset($_COOKIE['name'])): ?>
                     <div style="float: left;margin: 5px 10px 0 0;"><?php echo $_COOKIE['email'] . '(' . $_COOKIE['name'] . ')'?></div>
+                    <a style="float: right;" class="naver_login" href="<?php echo $apiURL ?>"><img style="height: 35px;" src="http://static.nid.naver.com/oauth/small_g_out.PNG"/></a>
+                <?php else: ?>
+                    <a style="float: right;" class="naver_login" href="/naver_logout"><img style="height: 35px;" src="http://static.nid.naver.com/oauth/small_g_in.PNG"/></a>
                 <?php endif ?>
-                <a style="float: right;" class="naver_login" href="<?php echo $apiURL ?>"><img style="height: 35px;" src="http://static.nid.naver.com/oauth/small_g_in.PNG"/></a>
             </div>
             <input type="text" name="category" placeholder="카테고리"> <button id="search">조회</button>
         </div>
