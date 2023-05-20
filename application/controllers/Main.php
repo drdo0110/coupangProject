@@ -69,7 +69,7 @@ class Main extends CI_Controller {
     }
 
     public function test() {
-        print_r($this->session->userdata['access_token']);
+        print_r($this->session->userdata);
         exit;
 
 
