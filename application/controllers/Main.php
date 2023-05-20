@@ -57,8 +57,8 @@ class Main extends CI_Controller {
             $response = json_decode($response);
 
             setcookie("cookie", $response->access_token, time() + 3600, "/");
-            print_r($_COOKIE);
-            exit;
+
+
             header("Location: http://34.105.106.219/coupangProject");
             exit;
          } else {
@@ -67,7 +67,7 @@ class Main extends CI_Controller {
     }
 
     public function test() {
-
+        print_r($_COOKIE);
         exit;
 
         $token = "YOUR_ACCESS_TOKEN";
