@@ -56,16 +56,10 @@ class Main extends CI_Controller {
          if($status_code == 200) {
             $response = json_decode($response);
 
-            $this->load->library('session');
-
-            $session_data = [
-                'test'              => 'test',
-                'access_token'      => $response->access_token
-            ];
-
-            $this->session->set_userdata($session_data);  //session 등록
-
-            //header("Location: http://34.105.106.219/coupangProject");
+            setcookie("cookie", $response->access_token, time() + 3600, "/");
+            print_r($_COOKIE);
+            exit;
+            header("Location: http://34.105.106.219/coupangProject");
             exit;
          } else {
             echo "Error 내용:".$response;
@@ -73,9 +67,7 @@ class Main extends CI_Controller {
     }
 
     public function test() {
-        $this->load->library('session');
 
-        print_r($this->session->all_userdata());
         exit;
 
         $token = "YOUR_ACCESS_TOKEN";
