@@ -63,7 +63,7 @@ class Main extends CI_Controller {
     }
 
     public function naver_info($response) {
-        $access_token = $response['access_token'];
+        $access_token = $response->access_token;
 
         $token = $access_token;
         $header = "Bearer ".$token; // Bearer 다음에 공백 추가
