@@ -47,7 +47,7 @@ class Main extends CI_Controller {
          curl_setopt($ch, CURLOPT_POST, $is_post);
          curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-         $headers = array();
+         $headers = [];
          $response = curl_exec ($ch);
          $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
@@ -59,7 +59,7 @@ class Main extends CI_Controller {
             $session_data = [
                 'access_token'      => $response->access_token
             ];
-print_r($session_data);exit;
+
             $this->session->set_userdata($session_data);  //session 등록
 
             header("Location: http://34.105.106.219/coupangProject");
@@ -70,7 +70,7 @@ print_r($session_data);exit;
 
     public function test() {
         print_r($this->session->userdata);
-
+        exit;
 
         $token = "YOUR_ACCESS_TOKEN";
         $header = "Bearer ".$token; // Bearer 다음에 공백 추가
@@ -80,7 +80,7 @@ print_r($session_data);exit;
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, $is_post);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $headers = array();
+        $headers = [];
         $headers[] = "Authorization: ".$header;
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         $response = curl_exec ($ch);
