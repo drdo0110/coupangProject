@@ -73,22 +73,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $active_group = 'default';
 $query_builder = TRUE;
 
-$hostname = 'localhost';
-$username = 'nhjung';
-$database = 'nhjung';
-$password = 'qndud2580#';
-if ($_SERVER['SERVER_ADDR'] == '127.0.0.1') {
-	$username = 'root';
-	$database = 'coding';
-	$password = '';
-}
+$hostname = $_SERVER['SERVER_ADDR'] == '127.0.0.1' ? 'localhost' : '34.105.36.251';
+$password = $_SERVER['SERVER_ADDR'] == '127.0.0.1' ? '' : 'qndud2580#';
 
 $db['default'] = array(
 	'dsn'	=> '',
 	'hostname' => $hostname,
-	'username' => $username,
+	'username' => 'root',
 	'password' => $password,
-	'database' => $database,
+	'database' => 'coding',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,
