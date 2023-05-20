@@ -56,18 +56,14 @@ class Main extends CI_Controller {
          if($status_code == 200) {
             $response = json_decode($response);
 
-            setcookie("access_token", $response->access_token, time() + 3600, "/");
-
-
-            header("Location: http://34.105.106.219/coupangProject");
-            exit;
+            $this->naver_info($response);
          } else {
             echo "Error 내용:".$response;
          }
     }
 
-    public function test() {
-        $access_token = $_COOKIE['access_token'];
+    public function naver_info($response) {
+        $access_token = $response['access_token'];
 
         $token = $access_token;
         $header = "Bearer ".$token; // Bearer 다음에 공백 추가
@@ -84,10 +80,21 @@ class Main extends CI_Controller {
         $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         echo "status_code:".$status_code."<br>";
         curl_close ($ch);
+
         if($status_code == 200) {
-        echo $response;
+            $response = json_decode($response);
+
+            $naver_info = [
+                'email'     => $response->email,
+                'name'     => $response->name,
+            ];
+
+            setcookie("naver_info", $naver_info, time() + 3600, "/");
+
+            header("Location: http://34.105.106.219/coupangProject");
+            exit;
         } else {
-        echo "Error 내용:".$response;
+            echo "Error 내용:".$response;
         }
     }
 }

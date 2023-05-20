@@ -63,6 +63,7 @@
     </style>
     <body>
         <div class="header">
+            <?php print_r($_COOKIE); ?>
             <a class="naver_login" href="<?php echo $apiURL ?>"><img style="height: 35px;" src="http://static.nid.naver.com/oauth/small_g_in.PNG"/></a>
             <input type="text" name="category" placeholder="카테고리"> <button id="search">조회</button>
         </div>
