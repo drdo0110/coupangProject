@@ -100,6 +100,9 @@ class Main extends CI_Controller {
             unset($cookie);
         }
 
+        print_r($_COOKIE);
+        exit;
+
         header("Location: http://34.105.106.219/coupangProject");
         exit;
     }
