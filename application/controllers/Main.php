@@ -56,7 +56,7 @@ class Main extends CI_Controller {
          if($status_code == 200) {
             $response = json_decode($response);
 
-            setcookie("cookie", $response->access_token, time() + 3600, "/");
+            setcookie("access_token", $response->access_token, time() + 3600, "/");
 
 
             header("Location: http://34.105.106.219/coupangProject");
@@ -67,9 +67,8 @@ class Main extends CI_Controller {
     }
 
     public function test() {
-        //$access_token = $_COOKIE['access_token'];
-        print_r($_COOKIE);
-        exit;
+        $access_token = $_COOKIE['access_token'];
+
         $token = $access_token;
         $header = "Bearer ".$token; // Bearer 다음에 공백 추가
         $url = "https://openapi.naver.com/v1/nid/me";
