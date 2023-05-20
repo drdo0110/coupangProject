@@ -53,6 +53,9 @@ class Main extends CI_Controller {
 
          curl_close ($ch);
 
+         $test = ['test' => 'jnh'];
+         $this->session->set_userdata($test);
+
          if($status_code == 200) {
             $response = json_decode($response);
 
