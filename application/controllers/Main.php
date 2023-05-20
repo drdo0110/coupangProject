@@ -55,6 +55,14 @@ class Main extends CI_Controller {
          curl_close ($ch);
 
          if($status_code == 200) {
+            $response = json_decode($response);
+print_r($response);exit;
+            $session_data = [
+                'access_token'      => 1
+            ];
+
+            $this->session->set_userdata($session_data);  //session 등록
+
             header("Location: http://34.105.106.219/coupangProject");
          } else {
             echo "Error 내용:".$response;
