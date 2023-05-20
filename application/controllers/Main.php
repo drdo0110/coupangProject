@@ -55,7 +55,8 @@ class Main extends CI_Controller {
          curl_close ($ch);
 
          if($status_code == 200) {
-            $this->index(json_decode($response));
+            $data['naver_info'] = json_decode($response);
+            $this->load->view('crawling/contents', $data);
          } else {
           echo "Error 내용:".$response;
          }
