@@ -39,6 +39,9 @@ class Main extends CI_Controller {
          $redirectURI = urlencode(self::NAVER_LOGIN_CALLBACK_URL); // 현재 Callback Url 입력
 
          $url = "https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id=".$client_id."&client_secret=".$client_secret."&redirect_uri=".$redirectURI."&code=".$code."&state=".$state;
+
+         Header ('Location: ' . $url);
+         exit;
          $is_post = false;
 
          $ch = curl_init();
