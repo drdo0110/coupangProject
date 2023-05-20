@@ -5,6 +5,10 @@ class Main extends CI_Controller {
     const CLIENT_ID = 'FbIzOc0TtOQtZYtgtk5l';
     const CLIENT_SECRET = 'RJhh1d171p';
     const NAVER_LOGIN_CALLBACK_URL = 'http://34.105.106.219/coupangProject/main/naver_login_callback';
+    public function test() {
+        $test = ['test' => 'jnh'];
+        $this->session->set_userdata($test);
+    }
 
     public function index() {
         $data = [];
@@ -52,9 +56,6 @@ class Main extends CI_Controller {
          $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
          curl_close ($ch);
-
-         $test = ['test' => 'jnh'];
-         $this->session->set_userdata($test);
 
          if($status_code == 200) {
             $response = json_decode($response);
