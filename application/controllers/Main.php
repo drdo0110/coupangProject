@@ -96,8 +96,9 @@ class Main extends CI_Controller {
     }
 
     public function naver_logout() {
-        setcookie('NID_SES', '', time() - 3600);
-        setcookie('NID_AUT', '', time() - 3600);
+        foreach ($_COOKIE as $key => $cookie) {
+            unset($cookie);
+        }
 
         header("Location: http://34.105.106.219/coupangProject");
         exit;
