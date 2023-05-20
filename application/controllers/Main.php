@@ -97,7 +97,7 @@ class Main extends CI_Controller {
 
     public function naver_logout() {
         foreach ($_COOKIE as $key => $cookie) {
-            unset($cookie);
+            unset($_COOKIE[$cookie]);
         }
 
         print_r($_COOKIE);
