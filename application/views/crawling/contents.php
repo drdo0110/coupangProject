@@ -153,7 +153,7 @@
         }
 
         $.ajax({
-            url : 'main/crawling',
+            url : '/crawling',
             data : {
                 category : category
             },
