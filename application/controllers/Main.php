@@ -96,12 +96,7 @@ class Main extends CI_Controller {
     }
 
     public function naver_logout() {
-        foreach ($_COOKIE as $key => $cookie) {
-            unset($_COOKIE[$cookie]);
-        }
-
-        print_r($_COOKIE);
-        exit;
+        setcookie('email', '', time() - 100, '/');
 
         header("Location: http://34.105.106.219/coupangProject");
         exit;
