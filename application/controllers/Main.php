@@ -84,12 +84,8 @@ class Main extends CI_Controller {
         if($status_code == 200) {
             $response = json_decode($response);
 
-            $naver_info = [
-                'email'     => $response->email,
-                'name'     => $response->name,
-            ];
-
-            setcookie("naver_info", $naver_info, time() + 3600, "/");
+            setcookie("email", $response->email, time() + 3600, "/");
+            setcookie("name", $response->name, time() + 3600, "/");
 
             header("Location: http://34.105.106.219/coupangProject");
             exit;
