@@ -59,7 +59,7 @@ class Main extends CI_Controller {
             $session_data = [
                 'access_token'      => $response->access_token
             ];
-
+print_r($session_data);exit;
             $this->session->set_userdata($session_data);  //session 등록
 
             header("Location: http://34.105.106.219/coupangProject");
@@ -70,7 +70,6 @@ class Main extends CI_Controller {
 
     public function test() {
         print_r($this->session->userdata);
-        exit;
 
 
         $token = "YOUR_ACCESS_TOKEN";
