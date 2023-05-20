@@ -8,6 +8,8 @@ class Main extends CI_Controller {
     public function test() {
         $test = ['test' => 'jnh'];
         $this->session->set_userdata($test);
+
+        echo $this->session->userdata('test');
     }
 
     public function index() {
