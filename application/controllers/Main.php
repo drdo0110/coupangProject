@@ -96,6 +96,9 @@ class Main extends CI_Controller {
     }
 
     public function naver_logout() {
+        print_r($_SESSION);
+        exit;
+
         setcookie('email', '', time() - 100, '/');
         setcookie('name', '', time() - 100, '/');
         setcookie('NID_AUT', '12', time() - 9999, '/');
