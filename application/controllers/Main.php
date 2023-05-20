@@ -99,9 +99,6 @@ class Main extends CI_Controller {
         setcookie('NID_SES', '', time() - 3600);
         setcookie('NID_AUT', '', time() - 3600);
 
-        print_r($_COOKIE);
-        exit;
-
         header("Location: http://34.105.106.219/coupangProject");
         exit;
     }
