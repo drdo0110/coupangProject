@@ -57,12 +57,11 @@ class Main extends CI_Controller {
             $response = json_decode($response);
 
             $session_data = [
+                'test'              => 'test',
                 'access_token'      => $response->access_token
             ];
 
             $this->session->set_userdata($session_data);  //session 등록
-
-            sleep(1);
 
             header("Location: http://34.105.106.219/coupangProject");
             exit;
