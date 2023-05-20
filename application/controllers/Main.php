@@ -87,7 +87,8 @@ class Main extends CI_Controller {
             setcookie("email", $response->email, time() + 3600, "/");
             setcookie("name", $response->name, time() + 3600, "/");
 
-            header("Location: http://34.105.106.219/coupangProject");
+            print_r($_COOKIE);
+            //header("Location: http://34.105.106.219/coupangProject");
             exit;
         } else {
             echo "Error 내용:".$response;
