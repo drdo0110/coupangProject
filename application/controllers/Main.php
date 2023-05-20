@@ -85,8 +85,8 @@ class Main extends CI_Controller {
             echo $response;
             $response = json_decode($response);
 
-            setcookie("email", $response->email, time() + 3600, "/");
-            setcookie("name", $response->name, time() + 3600, "/");
+            setcookie("email", $response->response->email, time() + 3600, "/");
+            setcookie("name", $response->response->name, time() + 3600, "/");
 
             print_r($_COOKIE);
             //header("Location: http://34.105.106.219/coupangProject");
