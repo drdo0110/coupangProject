@@ -56,6 +56,8 @@ class Main extends CI_Controller {
          if($status_code == 200) {
             $response = json_decode($response);
 
+            $this->load->library('session');
+
             $session_data = [
                 'test'              => 'test',
                 'access_token'      => $response->access_token
@@ -71,7 +73,9 @@ class Main extends CI_Controller {
     }
 
     public function test() {
-        print_r($this->session->userdata);
+        $this->load->library('session');
+
+        print_r($this->session->all_userdata());
         exit;
 
         $token = "YOUR_ACCESS_TOKEN";
