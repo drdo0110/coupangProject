@@ -60,6 +60,7 @@
     </style>
     <body>
         <div class="header">
+            <input type="hidden" id="remote" value="<?=$_SESSION['REMOTE_ADDR'] == '127.0.0.1' ? 'local' : 'production'?>">
             <div style="float: right;">
                 <?php if ( ! empty($this->session->userdata('email')) && $this->session->userdata('name')): ?>
                     <div style="float: left;margin: 5px 10px 0 0;"><?=$this->session->userdata('email') . '(' . $this->session->userdata('name') . ')'?></div>
@@ -203,11 +204,12 @@
     $(document).on('click', '.naver_logout', (e) => {
         let width = window.innerWidth;
         let height = window.innerHeight;
+        let remote = $('#remote');
 
         myWindow = window.open('http://nid.naver.com/nidlogin.logout', '네이버팝업', 'width=' + width + ',' + 'height=' + height);
         setTimeout(() => {
             myWindow.close();
-            window.location.href = '/main/naver_logout';
+            window.location.href = remote.val() == '127.0.0.1' ? '/main/naver_logout' : '/coupangProject/main/naver_logout';
         }, 200);
     });
 
