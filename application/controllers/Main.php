@@ -5,17 +5,18 @@ class Main extends CI_Controller {
     const CLIENT_ID = 'FbIzOc0TtOQtZYtgtk5l';
     const CLIENT_SECRET = 'RJhh1d171p';
     const NAVER_LOGIN_CALLBACK_URL = 'http://34.105.106.219/coupangProject/main/naver_login_callback';
+    const LOCAL_NAVER_LOGIN_CALLBACK_URL = 'http://127.0.0.1/main/naver_login_callback';
+
     public function test() {
-        $test = ['test' => 'jnh'];
-        $this->session->set_userdata($test);
+        print_r($this->session->all_userdata());
     }
 
     public function index() {
         $data = [];
 
         $client_id = self::CLIENT_ID; // 위에서 발급받은 Client ID 입력
-        $redirectURI = urlencode(self::NAVER_LOGIN_CALLBACK_URL); //자신의 Callback URL 입력
-        $state = "RAMDOM_STATE";
+        $redirectURI = urlencode($_SERVER['REMOTE_ADDR'] == '127.0.0.1' ? self::LOCAL_NAVER_LOGIN_CALLBACK_URL : self::NAVER_LOGIN_CALLBACK_URL); //자신의 Callback URL 입력
+        $state = md5(microtime() . mt_rand());
         $data['apiURL'] = "https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=".$client_id."&redirect_uri=".$redirectURI."&state=".$state;
 
         $this->load->view('crawling/contents', $data);
@@ -38,27 +39,16 @@ class Main extends CI_Controller {
          $client_id = self::CLIENT_ID;
          $client_secret = self::CLIENT_SECRET;
 
-         $code = $_GET["code"];
-         $state = $_GET["state"];
-         $redirectURI = urlencode(self::NAVER_LOGIN_CALLBACK_URL); // 현재 Callback Url 입력
+         $code = $this->input->get('code');
+         $state = $this->input->get('state');
+         $redirectURI = urlencode($_SERVER['REMOTE_ADDR'] == '127.0.0.1' ? self::LOCAL_NAVER_LOGIN_CALLBACK_URL : self::NAVER_LOGIN_CALLBACK_URL); // 현재 Callback Url 입력
 
          $url = "https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id=".$client_id."&client_secret=".$client_secret."&redirect_uri=".$redirectURI."&code=".$code."&state=".$state;
 
-         $is_post = false;
+         $curlResult = $this->get_curl($url, true);
 
-         $ch = curl_init();
-         curl_setopt($ch, CURLOPT_URL, $url);
-         curl_setopt($ch, CURLOPT_POST, $is_post);
-         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-         $headers = [];
-         $response = curl_exec ($ch);
-         $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-         curl_close ($ch);
-
-         if($status_code == 200) {
-            $response = json_decode($response);
+         if($curlResult->status_code == 200) {
+            $response = json_decode($curlResult->response);
 
             $this->naver_info($response);
          } else {
@@ -86,13 +76,19 @@ class Main extends CI_Controller {
         curl_close ($ch);
 
         if($status_code == 200) {
-            echo $response;
             $response = json_decode($response);
 
-            setcookie("email", $response->response->email, time() + 3600, "/");
-            setcookie("name", $response->response->name, time() + 3600, "/");
+            $sessionData = [
+                'access_token'  => $access_token,
+                'email'         => $response->response->email,
+                'name'          => $response->response->name,
+            ];
 
-            header("Location: http://34.105.106.219/coupangProject");
+            $this->session->set_userdata($sessionData);
+
+            $location_url = $_SERVER['REMOTE_ADDR'] == '127.0.0.1' ? 'http://127.0.0.1/main' : 'http://34.105.106.219/coupangProject';
+
+            header("Location: {$location_url}");
             exit;
         } else {
             echo "Error 내용:".$response;
@@ -100,15 +96,38 @@ class Main extends CI_Controller {
     }
 
     public function naver_logout() {
-        print_r($_SESSION);
-        exit;
+        // $client_id = self::CLIENT_ID;
+        // $client_secret = self::CLIENT_SECRET;
+        // $access_token = $this->session->userdata('access_token');
 
-        setcookie('email', '', time() - 100, '/');
-        setcookie('name', '', time() - 100, '/');
-        setcookie('NID_AUT', '12', time() - 9999, '/');
-        setcookie('NID_SES', '12', time() - 9999, '/');
+        // $url = "https://nid.naver.com/oauth2.0/token?grant_type=delete&client_id={$client_id}&client_secret={$client_secret}&access_token={$access_token}";
 
-        header("Location: http://34.105.106.219/coupangProject");
+        // $curlResult = $this->get_curl($url, true);
+
+        $this->session->sess_destroy();
+        $location_url = $_SERVER['REMOTE_ADDR'] == '127.0.0.1' ? 'http://127.0.0.1/main' : 'http://34.105.106.219/coupangProject';
+
+        header("Location: {$location_url}");
         exit;
+    }
+
+    public function get_curl($url, $return = false, $is_post = false) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, $is_post);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $headers = [];
+        $response = curl_exec($ch);
+        $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        curl_close($ch);
+
+        if ($return) {
+            return (object) [
+                'response'      => $response,
+                'status_code'   => $status_code,
+            ];
+        }
     }
 }

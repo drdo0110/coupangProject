@@ -61,12 +61,11 @@
     <body>
         <div class="header">
             <div style="float: right;">
-                <?php print_r($_SESSION); ?>
-                <?php if (isset($_COOKIE['email']) && isset($_COOKIE['name'])): ?>
-                    <div style="float: left;margin: 5px 10px 0 0;"><?php echo $_COOKIE['email'] . '(' . $_COOKIE['name'] . ')'?></div>
-                    <a style="float: right;" class="naver_login" href="/coupangProject/main/naver_logout"><img style="height: 35px;" src="http://static.nid.naver.com/oauth/small_g_out.PNG"/></a>
+                <?php if ( ! empty($this->session->userdata('email')) && $this->session->userdata('name')): ?>
+                    <div style="float: left;margin: 5px 10px 0 0;"><?=$this->session->userdata('email') . '(' . $this->session->userdata('name') . ')'?></div>
+                    <a style="float: right;" class="naver_logout"><img style="height: 35px;" src="http://static.nid.naver.com/oauth/small_g_out.PNG"/></a>
                 <?php else: ?>
-                    <a style="float: right;" class="naver_login" href="<?php echo $apiURL ?>"><img style="height: 35px;" src="http://static.nid.naver.com/oauth/small_g_in.PNG"/></a>
+                    <a style="float: right;" class="naver_login" href="<?=$apiURL ?>"><img style="height: 35px;" src="http://static.nid.naver.com/oauth/small_g_in.PNG"/></a>
                 <?php endif ?>
             </div>
             <input type="text" name="category" placeholder="카테고리"> <button id="search">조회</button>
@@ -198,6 +197,18 @@
 
         $('tr').css('background', 'none');
         tr.css('background', 'beige');
+    });
+
+    let myWindow;
+    $(document).on('click', '.naver_logout', (e) => {
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+
+        myWindow = window.open('http://nid.naver.com/nidlogin.logout', '네이버팝업', 'width=' + width + ',' + 'height=' + height);
+        setTimeout(() => {
+            myWindow.close();
+            window.location.href = '/main/naver_logout';
+        }, 200);
     });
 
 </script>
