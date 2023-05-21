@@ -60,7 +60,7 @@
     </style>
     <body>
         <div class="header">
-            <input type="hidden" id="remote" value="<?=$_SESSION['REMOTE_ADDR'] == '127.0.0.1' ? 'local' : 'production'?>">
+            <input type="hidden" id="remote" value="<?=$_SERVER['REMOTE_ADDR'] == '127.0.0.1' ? 'local' : 'production'?>">
             <div style="float: right;">
                 <?php if ( ! empty($this->session->userdata('email')) && $this->session->userdata('name')): ?>
                     <div style="float: left;margin: 5px 10px 0 0;"><?=$this->session->userdata('email') . '(' . $this->session->userdata('name') . ')'?></div>
