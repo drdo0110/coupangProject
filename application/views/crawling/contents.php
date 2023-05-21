@@ -15,6 +15,9 @@
             padding: 1px;
             text-align: center;
         }
+        ul, li {
+            list-style-type: none;
+        }
         .header {
             height: 5%;
         }
@@ -54,8 +57,8 @@
         .textarea-style {
             position: absolute;
             width: 38.5%;
-            height: 74%;
-            top: 210px;
+            height: 72%;
+            top: 230px;
         }
     </style>
     <body>
@@ -69,11 +72,18 @@
                     <a style="float: right;" class="naver_login" href="<?=$apiURL ?>"><img style="height: 35px;" src="http://static.nid.naver.com/oauth/small_g_in.PNG"/></a>
                 <?php endif ?>
             </div>
+            page :
+            <select name="show_page">
+                <?php for ($i = 1; $i <= 5; $i++): ?>
+                    <option value="<?=$i?>"><?=$i?></option>
+                <?php endfor; ?>
+            </select>
             <input type="text" name="category" placeholder="카테고리"> <button id="search">조회</button>
         </div>
         <div class="wrap">
+            <div id="time_end" style="height: 15px;"></div>
             <div class="left-box">
-                <table>
+                <table style="display: none;">
                     <thead>
                         <tr>
                             <th style="width: 75%;">제목</th>
@@ -84,6 +94,11 @@
                     <tbody>
                     </tbody>
                 </table>
+                <div id="page" style="float: right;">
+                    <ul>
+                    </ul>
+                </div>
+                <div id="loading" style="text-align: center;font-size: 17px;line-height: 140px;"></div>
             </div>
             <div class="right-box">
                 <div class="questionContent-text">
@@ -98,7 +113,7 @@
 
                 </div>
                 <div class="textarea-style">
-                    <!-- <textarea name="" id="content"></textarea> -->
+                    <textarea name="" id="content"></textarea>
 
                     <div style="float:right;">
                         <button id="reset">RESET</button>
@@ -128,12 +143,14 @@
         }
     });
 
+    //텍스트 리셋
     $(document).on('click', '#reset', (e) => {
         if (confirm('정말로 RESET 하시겠습니까?')) {
             $('#content').val('');
         }
     })
 
+    //카피
     $(document).on('click', '#copy', (e) => {
         // 화면에서 hidden 처리한 input box type을 text로 일시 변환
         $('#content').attr('type', 'text');
@@ -149,41 +166,65 @@
         }
     });
 
+    let loading = null;
+    let start = false;
+    let contentResult = [];
     $(document).on('click', '#search', (e) => {
+        if (start) {
+            alert('이미 검색중 입니다.');
+            return;
+        }
+
+        start = true;
+        let loadingCount = 0;
         let category = $('[name="category"]').val();
+        let show_page = $('[name="show_page"]').val();
 
         if (category == '') {
             alert('카테고리명을 입력하세요.');
             return;
         }
 
+        $('table').hide();
+        $('.left-box tbody').empty();
+        $('#page ul').empty();
+        $('#time_end').empty();
+
         $.ajax({
             url : 'main/crawling',
             data : {
-                category : category
+                category : category,
+                show_page : show_page
             },
             type : 'get',
             datatype : 'json',
+            beforeSend: function() {
+                $('#loading').append('Loading');
+                loading = setInterval(function() {
+                    loadingCount += 1;
+                    $('#loading').append('.');
+                }, 1000);
+            },
+            complete:function() {
+                $('#time_end').prepend(`<span id="succ" style="font-size:12px;">총 <b>${loadingCount}</b>초 걸렸습니다.</span>`);
+
+                clearInterval(loading);
+            },
             success: (res) => {
                 let data = JSON.parse(res);
+                contentResult = data;
 
-                let tag = '';
-                $.each(data, (idx, val) => {
-                    tag += `
-                        <tr data-questionContent="${val.questionContent}" data-link="${val.detailLink}" style="background: none;">
-                            <td class="detail" style="cursor:pointer;text-align:left;padding: 7px;">${val.title}</td>
-                            <td>${val.commentCnt}</td>
-                            <td>${val.setDateTime}</td>
-                            <td id="link" style="display:none;"></td>
-                        </tr>
-                    `;
-                });
-
-                $('.left-box tbody').append(tag);
+                dataView(contentResult);
             }
         });
     });
 
+    //페이징 처리
+    $(document).on('click', '.pagenation', (e) => {
+        dataView(contentResult, $(e.target).data('page'));
+    });
+
+    //상세 보기
     $(document).on('click', '.detail', (e) => {
         let target = $(e.target),
             tr = target.parents('tr');
@@ -200,6 +241,7 @@
         tr.css('background', 'beige');
     });
 
+    //로그아웃
     let myWindow;
     $(document).on('click', '.naver_logout', (e) => {
         let width = window.innerWidth;
@@ -213,4 +255,38 @@
         }, 200);
     });
 
+
+    function dataView(contentResult, page = 1) {
+        $('.left-box tbody').empty();
+        $('#page ul').empty();
+        $('#loading').empty();
+        $('table').show();
+
+        let tag = '';
+
+        if (contentResult.length > 0) {
+            $.each(contentResult.slice(page - 1, 20), (idx, val) => {
+                tag += `
+                    <tr data-questionContent="${val.questionContent}" data-link="${val.detailLink}" style="background: none;">
+                        <td class="detail" style="cursor:pointer;text-align:left;padding: 8px;">${val.title}</td>
+                        <td>${val.commentCnt}</td>
+                        <td>${val.setDateTime}</td>
+                        <td id="link" style="display:none;"></td>
+                    </tr>
+                `;
+            });
+        } else {
+            tag += '<tr><td colspan="3">데이터가 없습니다.</td></tr>';
+        }
+
+        $('.left-box tbody').append(tag);
+
+        let pageTag = '';
+        for (var i = 1; i <= (contentResult.length / 20) ; i++) {
+            pageTag += `<li style="margin-right:10px;float:left;"><a href="#" class="pagenation" data-page="${i}" style="text-decoration-line: none;">${i}</a></li>`;
+        }
+        $('#page ul').append(pageTag);
+
+        start = false;
+    }
 </script>

@@ -7,74 +7,78 @@ class Crawling {
         $this->ci =& get_instance();
     }
 
-    //하루에 한번 돌리는걸로 가정함
-    public function crawling($category = '추천') {
+    public function crawling($category = '추천', $page) {
         ini_set('memory_limit', -1);
 
         $this->ci->load->library('Simple_html_dom');
 
-        $page = 1;
-
         $category = urlencode(trim($category));
-        $url = "https://kin.naver.com/search/noAnswerList.naver?query={$category}&dirId=5&cs=utf8&page={$page}&pageOffset=0&isPrevPage=true";
-
-        $headerHtml = str_get_html($this->get_curl($url));
-        $trList = $headerHtml->find('.search_noAnswer_noAnswerList', 0)->find('table', 0)->find('tbody', 0)->find('tr');
 
         $result = [];
-        foreach ($trList as $key => $tr) {
-            $title = $tr->find('.title', 0)->find('a', 0)->plaintext; //제목
+        for ($i = 1; $i <= $page ; $i++) {
+            $url = "https://kin.naver.com/search/noAnswerList.naver?query={$category}&dirId=5&cs=utf8&page={$i}&pageOffset=0&isPrevPage=true";
 
-            if (strpos($title, '광고') !== false) {
-                continue;
-            }
+            $headerHtml = str_get_html($this->get_curl($url));
+            $trList = $headerHtml->find('.search_noAnswer_noAnswerList', 0)->find('table', 0)->find('tbody', 0)->find('tr');
 
-            if (strpos($title, '홍보') !== false) {
-                $title = str_replace('홍보', '<span style="color:red;font-weight: bold;">홍보</span>', $title);
-            }
+            foreach ($trList as $key => $tr) {
+                if (count($tr->find('.title')) == 0) {
+                    continue;
+                }
 
-            $commentCnt = $tr->find('.t_num', 0)->plaintext; //답변 카운트
-            $setDateTime = $tr->find('.t_num', 1)->plaintext; //등록 일
-            $detailLink = $tr->find('.title', 0)->find('a', 0)->href; //상세 링크
+                $title = $tr->find('.title', 0)->find('a', 0)->plaintext; //제목
 
-            $detailPage = str_get_html($this->get_curl($detailLink)); //상세 페이지
+                if (strpos($title, '광고') !== false) {
+                    continue;
+                }
 
-            $questionContent = '';
-            if (sizeof($detailPage->find('.question-content')) > 0 && ! empty($detailPage->find('.question-content', 0)->find('.c-heading__content', 0)->plaintext)) {
-                $questionContent = $detailPage->find('.question-content', 0)->find('.c-heading__content', 0)->plaintext; //질문
-            }
+                if (strpos($title, '홍보') !== false) {
+                    $title = str_replace('홍보', '<span style="color:red;font-weight: bold;">홍보</span>', $title);
+                }
 
-            if (strpos($questionContent, '광고') !== false) {
-                continue;
-            }
+                $commentCnt = $tr->find('.t_num', 0)->plaintext; //답변 카운트
+                $setDateTime = $tr->find('.t_num', 1)->plaintext; //등록 일
+                $detailLink = $tr->find('.title', 0)->find('a', 0)->href; //상세 링크
 
-            if (strpos($questionContent, '홍보') !== false) {
-                $questionContent = str_replace('홍보', '<span style="color:red;font-weight: bold;">홍보</span>', $questionContent);
-            }
+                $detailPage = str_get_html($this->get_curl($detailLink)); //상세 페이지
 
-            //채택 관련
-            if (sizeof($detailPage->find('.answer-content')) > 0) {
-                $answerContent = $detailPage->find('.answer-content', 0)->find('.answer-content__item._contentWrap._answer');
+                $questionContent = '';
+                if (sizeof($detailPage->find('.question-content')) > 0 && ! empty($detailPage->find('.question-content', 0)->find('.c-heading__content', 0)->plaintext)) {
+                    $questionContent = $detailPage->find('.question-content', 0)->find('.c-heading__content', 0)->plaintext; //질문
+                }
 
-                $selection = false;
-                foreach ($answerContent as $answer) {
-                    if (isset($answer->find('.adoptCheck', 0)->plaintext)) {
-                        $selection = true;
+                if (strpos($questionContent, '광고') !== false) {
+                    continue;
+                }
+
+                if (strpos($questionContent, '홍보') !== false) {
+                    $questionContent = str_replace('홍보', '<span style="color:red;font-weight: bold;">홍보</span>', $questionContent);
+                }
+
+                //채택 관련
+                if (sizeof($detailPage->find('.answer-content')) > 0) {
+                    $answerContent = $detailPage->find('.answer-content', 0)->find('.answer-content__item._contentWrap._answer');
+
+                    $selection = false;
+                    foreach ($answerContent as $answer) {
+                        if (isset($answer->find('.adoptCheck', 0)->plaintext)) {
+                            $selection = true;
+                        }
+                    }
+
+                    if ($selection) {
+                        continue;
                     }
                 }
 
-                if ($selection) {
-                    continue;
-                }
+                $result[] = [
+                    'title'             => $title,
+                    'commentCnt'        => $commentCnt,
+                    'setDateTime'       => $setDateTime,
+                    'questionContent'   => $questionContent,
+                    'detailLink'        => $detailLink,
+                ];
             }
-
-            $result[] = [
-                'title'             => $title,
-                'commentCnt'        => $commentCnt,
-                'setDateTime'       => $setDateTime,
-                'questionContent'   => $questionContent,
-                'detailLink'        => $detailLink,
-            ];
         }
 
         return $result;

@@ -30,7 +30,7 @@ class Main extends CI_Controller {
         }
 
         $this->load->library('Crawling');
-        $result = $this->crawling->crawling($oGet->category);
+        $result = $this->crawling->crawling($oGet->category, $oGet->show_page);
 
         echo json_encode($result);
     }
