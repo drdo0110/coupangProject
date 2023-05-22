@@ -39,7 +39,7 @@ class Main extends CI_Controller {
     public function get_csrf_token() {
         $oGet = (object) $this->input->get(null, true);
 
-        $curlResult = $this->get_curl($oGet->url, true, true, true);
+        $curlResult = $this->get_curl(urldecode($oGet->url), true, true, true);
         print_r($curlResult);
     }
 
