@@ -39,7 +39,7 @@ class Main extends CI_Controller {
     public function get_csrf_token() {
         $oGet = (object) $this->input->get(null, true);
 
-        $curlResult = $this->get_curl(urldecode($oGet->url), true, true);
+        $curlResult = $this->get_curl($oGet->url, true, true);
         print_r($curlResult);
     }
 
@@ -116,6 +116,8 @@ class Main extends CI_Controller {
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, $is_post);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0); // 상대 호스트 ssl 인증서 유효성 무시를 위해
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // 상대 호스트 ssl 인증서 유효성 무시를 위해
 
         if ($is_access_token) {
             $access_token = $this->session->userdata('access_token');
@@ -126,6 +128,7 @@ class Main extends CI_Controller {
             $headers = [];
             $headers[] = "Authorization: ".$header;
             $headers[] = "Content-Length: 0";
+            $headers[] = "Cookie: " . '';
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         }
 
