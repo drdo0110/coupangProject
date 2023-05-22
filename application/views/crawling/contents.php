@@ -57,7 +57,7 @@
         .textarea-style {
             position: absolute;
             width: 38.5%;
-            height: 72%;
+            height: 69%;
             top: 230px;
         }
     </style>
@@ -113,9 +113,39 @@
 
                 </div>
                 <div class="textarea-style">
-                    <textarea name="" id="content"></textarea>
+                    <button id="default_setting">기본 문구 추가</button>
+                    <textarea name="" id="content">
+안녕하세요!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*쿠팡파트너스 활동의 일환으로 수수료를 받을 수 있습니다
+                    </textarea>
 
                     <div style="float:right;">
+                        <button id="set">등록</button>
                         <button id="reset">RESET</button>
                         <button id="copy">COPY</button>
                     </div>
@@ -236,6 +266,8 @@
         $('.questionContent-bottom').append('<a href="' + tr.data('link') + '" target="_blank">' + tr.data('link').trim() + '</a>');
         $('.questionContent-bottom').append('<button id="toggle" style="float:right;" data-type="open">펼치기</button>');
 
+        $('#set').attr('data-link', '');
+        $('#set').attr('data-link', tr.data('link'));
 
         $('tr').css('background', 'none');
         tr.css('background', 'beige');
@@ -251,10 +283,43 @@
         myWindow = window.open('http://nid.naver.com/nidlogin.logout', '네이버팝업', 'width=' + width + ',' + 'height=' + height);
         setTimeout(() => {
             myWindow.close();
-            window.location.href = remote.val() == '127.0.0.1' ? '/main/naver_logout' : '/coupangProject/main/naver_logout';
+            window.location.href = remote.val() == 'local' ? '/main/naver_logout' : '/coupangProject/main/naver_logout';
         }, 200);
     });
 
+    $(document).on('click', '#default_setting', (e) => {
+        $('textarea#content').text("안녕하세요! \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n*쿠팡파트너스 활동의 일환으로 수수료를 받을 수 있습니다");
+    });
+
+    $(document).on('click', '#set', (e) => {
+        let target = $(e.target),
+            link = target.data('link');
+
+        if (link == '' || link == null) {
+            alert('선택된 값이 없습니다');
+            return;
+        }
+
+        const queryString = new URL(link);
+        const urlParams = queryString.searchParams;
+
+        let dirId = urlParams.get('dirId');
+        let docId = urlParams.get('docId');
+
+        let url = `https://m.kin.naver.com/mobile/answer/registerForm.naver?dirId=${dirId}&docId=${docId}`;
+
+        $.ajax({
+            url : 'main/get_csrf_token',
+            data : {
+                url : url
+            },
+            type : 'get',
+            datatype : 'json',
+            success:(res) => {
+
+            }
+        })
+    });
 
     function dataView(contentResult, page = 1) {
         $('.left-box tbody').empty();
@@ -262,16 +327,16 @@
         $('#loading').empty();
         $('table').show();
 
+        let limit = 20;
         let tag = '';
-
         if (contentResult.length > 0) {
-            $.each(contentResult.slice(page - 1, 20), (idx, val) => {
+            let value = contentResult.slice((page - 1) * limit, limit * page);
+            $.each(value, (idx, val) => {
                 tag += `
                     <tr data-questionContent="${val.questionContent}" data-link="${val.detailLink}" style="background: none;">
                         <td class="detail" style="cursor:pointer;text-align:left;padding: 8px;">${val.title}</td>
                         <td>${val.commentCnt}</td>
                         <td>${val.setDateTime}</td>
-                        <td id="link" style="display:none;"></td>
                     </tr>
                 `;
             });
@@ -282,8 +347,10 @@
         $('.left-box tbody').append(tag);
 
         let pageTag = '';
-        for (var i = 1; i <= (contentResult.length / 20) ; i++) {
-            pageTag += `<li style="margin-right:10px;float:left;"><a href="#" class="pagenation" data-page="${i}" style="text-decoration-line: none;">${i}</a></li>`;
+        let style = '';
+        for (var i = 1; i <= Math.ceil(contentResult.length / limit) ; i++) {
+            style = page == i ? 'font-weight:bold;' : '';
+            pageTag += `<li style="margin-right:10px;float:left;font-size:20px;${style}"><a href="#" class="pagenation" data-page="${i}" style="text-decoration-line: none;">${i}</a></li>`;
         }
         $('#page ul').append(pageTag);
 

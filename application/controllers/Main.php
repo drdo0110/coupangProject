@@ -35,6 +35,14 @@ class Main extends CI_Controller {
         echo json_encode($result);
     }
 
+    //지식인 토큰 값 가져오기?
+    public function get_csrf_token() {
+        $oGet = (object) $this->input->get(null, true);
+
+        $curlResult = $this->get_curl($oGet->url, true, true, true);
+        print_r($curlResult);
+    }
+
     public function naver_login_callback() {
          $client_id = self::CLIENT_ID;
          $client_secret = self::CLIENT_SECRET;
@@ -96,14 +104,6 @@ class Main extends CI_Controller {
     }
 
     public function naver_logout() {
-        // $client_id = self::CLIENT_ID;
-        // $client_secret = self::CLIENT_SECRET;
-        // $access_token = $this->session->userdata('access_token');
-
-        // $url = "https://nid.naver.com/oauth2.0/token?grant_type=delete&client_id={$client_id}&client_secret={$client_secret}&access_token={$access_token}";
-
-        // $curlResult = $this->get_curl($url, true);
-
         $this->session->sess_destroy();
         $location_url = $_SERVER['REMOTE_ADDR'] == '127.0.0.1' ? 'http://127.0.0.1/main' : 'http://34.105.106.219/coupangProject';
 
@@ -111,13 +111,23 @@ class Main extends CI_Controller {
         exit;
     }
 
-    public function get_curl($url, $return = false, $is_post = false) {
+    public function get_curl($url, $return = false, $is_access_token = false, $is_post = false) {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, $is_post);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-        $headers = [];
+        if ($is_access_token) {
+            $access_token = $this->session->userdata('access_token');
+
+            $token = $access_token;
+            $header = "Bearer ".$token; // Bearer 다음에 공백 추가
+
+            $headers = [];
+            $headers[] = "Authorization: ".$header;
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        }
+
         $response = curl_exec($ch);
         $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
