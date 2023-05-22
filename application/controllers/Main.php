@@ -125,6 +125,7 @@ class Main extends CI_Controller {
 
             $headers = [];
             $headers[] = "Authorization: ".$header;
+            $headers[] = "Content-Length: 0";
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         }
 
