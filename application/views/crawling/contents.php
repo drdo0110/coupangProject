@@ -25,27 +25,25 @@
             height: 95%;
         }
         .left-box {
-            width: 60%;
+            width: 30%;
             height: 100%;
             float: left;
         }
+        .middle-box {
+            width: 38%;
+            height: 95%;
+            border: 1px solid #ccc;
+            float: left;
+            margin-left: 1%;
+        }
         .right-box {
-            width: 39%;
+            width: 30%;
             height: 100%;
             float: right;
         }
-        .questionContent-text {
-            padding: 5px;
-            height: 15%;
-            border: 1px solid #ccc;
-            position: absolute;
-            width: 38%;
-            z-index: 100;
-            background: #fff;
-        }
         .questionContent-bottom a {
             float: left;
-            width: 90%;
+            width: 85%;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -54,11 +52,34 @@
             width: 100%;
             height: 100%;
         }
-        .textarea-style {
+        .questionContent-text {
+            padding: 5px;
+            height: 15%;
+            border: 1px solid #ccc;
             position: absolute;
-            width: 38.5%;
-            height: 69%;
-            top: 230px;
+            width: 29.1%;
+            z-index: 100;
+            background: #fff;
+        }
+        .textarea-style {
+            position: relative;
+            height: 54%;
+        }
+        .addLink {
+            position: relative;
+            height: 20%;
+            border: 1px solid #ccc;
+            margin: 155px 0 5px 0;
+        }
+        .addLink input[type="text"] {
+            margin: 4px;
+        }
+        .middle-box ul li {
+            width: 210px;
+            height: 250px;
+            border: 1px solid #ccc;
+            float: left;
+            margin: 6px 20px 6px -10px;
         }
     </style>
     <body>
@@ -79,9 +100,12 @@
                 <?php endfor; ?>
             </select>
             <input type="text" name="category" placeholder="카테고리"> <button id="search">조회</button>
+            <input type="text" name="coupang-category" placeholder="쿠팡 카테고리" style="margin-left: 14.1%;"> <button id="coupang-search">쿠팡 조회</button>
         </div>
         <div class="wrap">
             <div id="time_end" style="height: 15px;"></div>
+
+            <!-- 지식인 -->
             <div class="left-box">
                 <table style="display: none;">
                     <thead>
@@ -100,6 +124,32 @@
                 </div>
                 <div id="loading" style="text-align: center;font-size: 17px;line-height: 140px;"></div>
             </div>
+
+            <!-- 쿠팡 -->
+            <div class="middle-box">
+                <ul>
+                    <li>
+                        <div>
+                            <div>
+                                <img style="width:100%;height: 75%;" src="https://ads-partners.coupang.com/image1/Nv4pRaCVUX52BNS4Nkumu9-hOcH5DL5o9ZwQ9qJIC2_cLN91BislU29d6ohBxIGfkl-9dwNc_DTY0SUgcsUVbAcpMALGalkdUpow58F796rvmlLH8a2JPG5sr8XM_xUpSsHl_ngoIrUOW7JcY4E36YblHoiP5DqPFCc4lh3XVjcMhd2bl-s98vTqTBlY8nd0wtGaZmL_poggmzmYuFrQGiPYaUFrsOQPj8_dpLeZQzZO91wcTSyNF-ML5HikCJSTcvSsgKGHn45Ssw==" alt="">
+                            </div>
+                            <div style="text-align: center;font-size: 12px;height: 32px;">페이황 푸주 건두부면</div>
+                            <button id="link-detail" style="margin: 3px 0 0 15px;width: 85px;">상세 보기</button>
+                            <button id="link-copy" style="margin: 0px 0 0 6px;width: 85px;">링크 복사</button>
+                        </div>
+                    </li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                </ul>
+            </div>
+
+            <!-- etc -->
             <div class="right-box">
                 <div class="questionContent-text">
                     <div class="questionContent-top" style="height: 82%;overflow: hidden;font-size: 15px;">
@@ -110,42 +160,21 @@
                     </div>
                 </div>
                 <div class="addLink">
-
+                    <?php for($i = 1; $i <= 5; $i++): ?>
+                        <input type="text" id="coupang-url-<?=$i?>" style="width: 56%;" placeholder="일반 링크"> <input type="text" id="coupang-url-<?=$i?>-change" style="width: 30%;" placeholder="변환 된 링크" readonly>
+                        <input type="button" class="coupang-url-<?=$i?>-detail-open" name="coupang-detail" value="상세">
+                        <br>
+                    <?php endfor; ?>
+                    <button id="url-change" style="margin-left: 4px;">링크 변환</button>
                 </div>
                 <div class="textarea-style">
                     <button id="default_setting">기본 문구 추가</button>
-                    <textarea name="" id="content">
-안녕하세요!
+                    <textarea name="" id="content"></textarea>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-*쿠팡파트너스 활동의 일환으로 수수료를 받을 수 있습니다
-                    </textarea>
-
+                    <div style="float: left;">
+                        <button id="set" style="margin-top:2px;">지식인 답변 달기</button>
+                    </div>
                     <div style="float:right;">
-                        <button id="set">등록</button>
                         <button id="reset">RESET</button>
                         <button id="copy">COPY</button>
                     </div>
@@ -288,9 +317,81 @@
     });
 
     $(document).on('click', '#default_setting', (e) => {
-        $('textarea#content').text("안녕하세요! \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n*쿠팡파트너스 활동의 일환으로 수수료를 받을 수 있습니다");
+        $('textarea#content').val('');
+        $('textarea#content').val("안녕하세요! \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n *쿠팡파트너스 활동의 일환으로 수수료를 받을 수 있습니다");
     });
 
+    //쿠팡 상품 검색
+    $(document).on('click', '#coupang-search', (e) => {
+        if ($('[name="coupang-category"]').val() == '') {
+            alert('쿠팡 상품명을 검색해주세요.');
+            return;
+        }
+
+        $.ajax({
+            url : 'main/coupangProductList',
+            data : {
+                keyword : $('[name="coupang-category"]').val()
+            },
+            type : 'post',
+            datatype : 'json',
+            success: (res) => {
+                let data = JSON.parse(res);
+
+                let tag = '';
+                $.each(data, (idx, val) => {
+                    tag += `
+
+                    `;
+                })
+            }
+        });
+    });
+
+    //쿠팡 링크 변경
+    $(document).on('click', '#url-change', (e) => {
+        if ($('.addLink input').length == 0) {
+            alert('변경 할 링크가 없습니다.');
+            return;
+        }
+
+        let coupangLinks = [];
+        $.each($('.addLink input'), (idx, el) => {
+            let $el = $(el);
+
+            if ($el.val() != '') {
+                coupangLinks.push('"' + $el.val() + '"' + '|' + $el.attr('id'));
+            }
+        });
+
+        $.ajax({
+            url : 'main/coupangLinkChange',
+            data : {
+                coupangLinks : coupangLinks
+            },
+            type : 'post',
+            datatype : 'json',
+            success: (res) => {
+                let data = JSON.parse(res);
+
+                $.each(data, (idx, val) => {
+                    let coupang_link = $(`#${val.id}-change`);
+                    let coupang_detail_link = $(`.${val.id}-detail-open`);
+
+                    coupang_link.val(val.shortenUrl);
+                    coupang_detail_link.attr('data-url', val.shortenUrl);
+                })
+            }
+        });
+    });
+
+    //쿠팡 디테일 페이지
+    $(document).on('click', '[name="coupang-detail"]', (e) => {
+        let target = $(e.target);
+        window.open(target.data('url'));
+    });
+
+    //지식인 답변 창 오픈
     $(document).on('click', '#set', (e) => {
         let target = $(e.target),
             link = target.data('link');
@@ -308,17 +409,7 @@
 
         let url = `https://m.kin.naver.com/mobile/answer/registerForm.naver?dirId=${dirId}&docId=${docId}`;
 
-        $.ajax({
-            url : 'main/get_csrf_token',
-            data : {
-                url : url
-            },
-            type : 'get',
-            datatype : 'json',
-            success:(res) => {
-
-            }
-        })
+        window.open(url, '지식인', 'width=1000px,height=700px,top=150px,left=450px');
     });
 
     function dataView(contentResult, page = 1) {
