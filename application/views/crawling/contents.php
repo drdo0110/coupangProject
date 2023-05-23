@@ -131,11 +131,11 @@
                     <li>
                         <div>
                             <div>
-                                <img style="width:100%;height: 75%;" src="https://ads-partners.coupang.com/image1/Nv4pRaCVUX52BNS4Nkumu9-hOcH5DL5o9ZwQ9qJIC2_cLN91BislU29d6ohBxIGfkl-9dwNc_DTY0SUgcsUVbAcpMALGalkdUpow58F796rvmlLH8a2JPG5sr8XM_xUpSsHl_ngoIrUOW7JcY4E36YblHoiP5DqPFCc4lh3XVjcMhd2bl-s98vTqTBlY8nd0wtGaZmL_poggmzmYuFrQGiPYaUFrsOQPj8_dpLeZQzZO91wcTSyNF-ML5HikCJSTcvSsgKGHn45Ssw==" alt="">
+                                <a href="https://link.coupang.com/re/AFFSDP?lptag=AF9936219&pageKey=1552741507&itemId=2656122108&vendorItemId=70646860854&traceid=V0-153-de36aaf1889d2a60&requestid=20230524012807070132680&token=31850C%7CMIXED" target="_blank"><img style="width:100%;height: 75%;" src="https://ads-partners.coupang.com/image1/Nv4pRaCVUX52BNS4Nkumu9-hOcH5DL5o9ZwQ9qJIC2_cLN91BislU29d6ohBxIGfkl-9dwNc_DTY0SUgcsUVbAcpMALGalkdUpow58F796rvmlLH8a2JPG5sr8XM_xUpSsHl_ngoIrUOW7JcY4E36YblHoiP5DqPFCc4lh3XVjcMhd2bl-s98vTqTBlY8nd0wtGaZmL_poggmzmYuFrQGiPYaUFrsOQPj8_dpLeZQzZO91wcTSyNF-ML5HikCJSTcvSsgKGHn45Ssw==" alt=""></a>
                             </div>
                             <div style="text-align: center;font-size: 12px;height: 32px;">페이황 푸주 건두부면</div>
-                            <button id="link-detail" style="margin: 3px 0 0 15px;width: 85px;">상세 보기</button>
-                            <button id="link-copy" style="margin: 0px 0 0 6px;width: 85px;">링크 복사</button>
+                            <button id="link-copy" style="margin: 3px 0 0 15px;width: 85px;">링크 복시</button>
+                            <button id="link-add" style="margin: 0px 0 0 6px;width: 85px;">링크 삽입</button>
                         </div>
                     </li>
                     <li></li>
@@ -161,8 +161,7 @@
                 </div>
                 <div class="addLink">
                     <?php for($i = 1; $i <= 5; $i++): ?>
-                        <input type="text" id="coupang-url-<?=$i?>" style="width: 56%;" placeholder="일반 링크"> <input type="text" id="coupang-url-<?=$i?>-change" style="width: 30%;" placeholder="변환 된 링크" readonly>
-                        <input type="button" class="coupang-url-<?=$i?>-detail-open" name="coupang-detail" value="상세">
+                        <input type="text" id="coupang-url-<?=$i?>" style="width: 56%;" placeholder="일반 링크"> <input type="text" id="coupang-url-<?=$i?>-change" style="width: 39%;" placeholder="변환 된 링크" readonly>
                         <br>
                     <?php endfor; ?>
                     <button id="url-change" style="margin-left: 4px;">링크 변환</button>
