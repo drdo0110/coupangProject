@@ -130,7 +130,18 @@
                 <ul>
                     <li>
                         <div>
-                            <div>
+			    <div>
+				<div style="
+    position: absolute;
+    width: 100%;
+    height: 4%;
+">
+<input type="checkbox" style="
+    position: absolute;
+    /* z-index: 1000; */
+    width: 15px;
+    height: 15px;
+" class="all-data-insert"></div>
                                 <a href="https://link.coupang.com/re/AFFSDP?lptag=AF9936219&pageKey=1552741507&itemId=2656122108&vendorItemId=70646860854&traceid=V0-153-de36aaf1889d2a60&requestid=20230524012807070132680&token=31850C%7CMIXED" target="_blank"><img style="width:100%;height: 75%;" src="https://ads-partners.coupang.com/image1/Nv4pRaCVUX52BNS4Nkumu9-hOcH5DL5o9ZwQ9qJIC2_cLN91BislU29d6ohBxIGfkl-9dwNc_DTY0SUgcsUVbAcpMALGalkdUpow58F796rvmlLH8a2JPG5sr8XM_xUpSsHl_ngoIrUOW7JcY4E36YblHoiP5DqPFCc4lh3XVjcMhd2bl-s98vTqTBlY8nd0wtGaZmL_poggmzmYuFrQGiPYaUFrsOQPj8_dpLeZQzZO91wcTSyNF-ML5HikCJSTcvSsgKGHn45Ssw==" alt=""></a>
                             </div>
                             <div style="text-align: center;font-size: 12px;height: 32px;">페이황 푸주 건두부면</div>
