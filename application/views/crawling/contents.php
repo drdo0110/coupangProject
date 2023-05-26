@@ -128,35 +128,7 @@
             <!-- 쿠팡 -->
             <div class="middle-box">
                 <ul>
-                    <li>
-                        <div>
-			    <div>
-				<div style="
-    position: absolute;
-    width: 100%;
-    height: 4%;
-">
-<input type="checkbox" style="
-    position: absolute;
-    /* z-index: 1000; */
-    width: 15px;
-    height: 15px;
-" class="all-data-insert"></div>
-                                <a href="https://link.coupang.com/re/AFFSDP?lptag=AF9936219&pageKey=1552741507&itemId=2656122108&vendorItemId=70646860854&traceid=V0-153-de36aaf1889d2a60&requestid=20230524012807070132680&token=31850C%7CMIXED" target="_blank"><img style="width:100%;height: 75%;" src="https://ads-partners.coupang.com/image1/Nv4pRaCVUX52BNS4Nkumu9-hOcH5DL5o9ZwQ9qJIC2_cLN91BislU29d6ohBxIGfkl-9dwNc_DTY0SUgcsUVbAcpMALGalkdUpow58F796rvmlLH8a2JPG5sr8XM_xUpSsHl_ngoIrUOW7JcY4E36YblHoiP5DqPFCc4lh3XVjcMhd2bl-s98vTqTBlY8nd0wtGaZmL_poggmzmYuFrQGiPYaUFrsOQPj8_dpLeZQzZO91wcTSyNF-ML5HikCJSTcvSsgKGHn45Ssw==" alt=""></a>
-                            </div>
-                            <div style="text-align: center;font-size: 12px;height: 32px;">페이황 푸주 건두부면</div>
-                            <button id="title-copy" style="margin: 3px 0 0 15px;width: 85px;">타이틀 복사</button>
-                            <button id="short-link-copy" style="margin: 0px 0 0 6px;width: 85px;">숏 링크 복사</button>
-                        </div>
-                    </li>
-                    <li></li>
-                    <li></li>
-                    <li></li>
-                    <li></li>
-                    <li></li>
-                    <li></li>
-                    <li></li>
-                    <li></li>
+
                 </ul>
             </div>
 
@@ -351,8 +323,50 @@
                 let tag = '';
                 $.each(data, (idx, val) => {
                     tag += `
-
+                        <li>
+                            <div>
+                                <div style="position: absolute;width: 100%;height: 4%;">
+                                    <input type="checkbox" style="position: absolute;width: 15px;height: 15px;" class="all-data-insert">
+                                </div>
+                                <div>
+                                    <a href="${val.productUrl}" target="_blank">
+                                        <img style="width:100%;height: 75%;" src="${val.productImage}" alt="">
+                                    </a>
+                                </div>
+                                <div style="text-align: center;font-size: 12px;height: 32px;">${val.productName}</div>
+                                <button id="link-copy" class="link-copy" data-long-link="${val.productUrl}" style="margin: 3px 0 0 15px;width: 85px;">링크 복사</button>
+                                <button id="link-add" style="margin: 0px 0 0 6px;width: 85px;">링크 삽입</button>
+                            </div>
+                        </li>
                     `;
+                })
+                $('.middle-box ul').append(tag);
+            }
+        });
+    });
+
+    $(document).on('click', '.link-copy', (e) => {
+        let coupangLinks = [];
+        coupangLinks.push('"' + $('.link-copy').attr('data-long-link') + '"');
+
+        $.ajax({
+            url : 'main/coupangLinkChange',
+            data : {
+                coupangLinks : coupangLinks
+            },
+            type : 'post',
+            datatype : 'json',
+            success: (res) => {
+                let data = JSON.parse(res);
+
+                console.log(data);
+                return;
+                $.each(data, (idx, val) => {
+                    let coupang_link = $(`#${val.id}-change`);
+                    let coupang_detail_link = $(`.${val.id}-detail-open`);
+
+                    coupang_link.val(val.shortenUrl);
+                    coupang_detail_link.attr('data-url', val.shortenUrl);
                 })
             }
         });

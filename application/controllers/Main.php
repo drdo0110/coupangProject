@@ -137,7 +137,9 @@ class Main extends CI_Controller {
                 $explodeData = explode('|', $coupangLinks);
 
                 $coupangLinks = $explodeData[0];
-                $ids[] = $explodeData[1];
+                if (isset($explodeData[1])) {
+                    $ids[] = $explodeData[1];
+                }
             }
 
             $str = implode(',', $oPost->coupangLinks);
@@ -152,10 +154,12 @@ class Main extends CI_Controller {
 
             $result = $this->get_coupang_curl('POST', $url, $strjson);
             $result = json_decode($result);
-
+print_r($result);exit;
             if ($result->rCode == 0) {
                 foreach ($result->data as $key => &$value) {
-                    $value->id = $ids[$key];
+                    if (isset($ids[$key])) {
+                        $value->id = $ids[$key];
+                    }
                 }
 
                 echo json_encode($result->data);
