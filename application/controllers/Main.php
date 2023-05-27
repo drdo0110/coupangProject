@@ -14,17 +14,16 @@ class Main extends CI_Controller {
     	$url = str_replace('//link', '//www', $url);
     	$url = str_replace('/re/', '/vp/products/', $url);
 
-	$explodeUrl = explode('AFFSDP?', $url);
+    	$explodeUrl = explode('AFFSDP?', $url);
 
+    	parse_str($explodeUrl[1], $arrParams);
 
-	parse_str($explodeUrl[1], $arrParams);
+    	$page_key = $arrParams['pageKey'];
+    	unset($arrParams['pageKey']);
+    	$params = http_build_query($arrParams, '&');
 
-	$page_key = $arrParams['pageKey'];
-	unset($arrParams['pageKey']);
-	$params = http_build_query($arrParams, '&');
-
-	$url = $explodeUrl[0] . $page_key . '?' . $params;
-	echo $url;
+    	$url = $explodeUrl[0] . $page_key . '?' . $params;
+    	echo $url;
     }
 
     public function test() {
@@ -146,23 +145,20 @@ class Main extends CI_Controller {
     }
 
     public function imgLinkChange($url) {
-	
-	$url = str_replace('//link', '//www', $url);
-        $url = str_replace('/re/', '/vp/products/', $url);
+	   $url = str_replace('//link', '//www', $url);
+       $url = str_replace('/re/', '/vp/products/', $url);
 
-        $explodeUrl = explode('AFFSDP?', $url);
+       $explodeUrl = explode('AFFSDP?', $url);
 
+       parse_str($explodeUrl[1], $arrParams);
 
-        parse_str($explodeUrl[1], $arrParams);
+       $page_key = $arrParams['pageKey'];
+       unset($arrParams['pageKey']);
+       $params = http_build_query($arrParams, '&');
 
-        $page_key = $arrParams['pageKey'];
-        unset($arrParams['pageKey']);
-        $params = http_build_query($arrParams, '&');
+	   $url = $explodeUrl[0] . $page_key . '?' . $params . '"';
 
-	$url = $explodeUrl[0] . $page_key . '?' . $params;
-
-	return $url;
-
+	   return $url;
 }
 
     public function coupangLinkChange() {
@@ -175,11 +171,10 @@ class Main extends CI_Controller {
             foreach ($oPost->coupangLinks as &$coupangLinks) {
                 $explodeData = explode('|', $coupangLinks);
 
-		$coupangLinks = $explodeData[0];
-
-		if (strpos($coupangLinks, 'link.coupang.com') !== false) {
-			$coupangLinks = $this->imgLinkChange($coupangLinks);
-		}
+        		$coupangLinks = $explodeData[0];
+        		if (strpos($coupangLinks, 'link.coupang.com') !== false) {
+        			$coupangLinks = $this->imgLinkChange($coupangLinks);
+        		}
 
                 if (isset($explodeData[1])) {
                     $ids[] = $explodeData[1];
@@ -188,16 +183,17 @@ class Main extends CI_Controller {
 	    
             $str = implode(',', $oPost->coupangLinks);
 
-            $strjson="
+            $strjson = "
                 {
                     \"coupangUrls\": [
                         {$str}
                     ]
-                }";
+                }
+            ";
 
             $result = $this->get_coupang_curl('POST', $url, $strjson);
             $result = json_decode($result);
-print_r($result);exit;
+
             if ($result->rCode == 0) {
                 foreach ($result->data as $key => &$value) {
                     if (isset($ids[$key])) {

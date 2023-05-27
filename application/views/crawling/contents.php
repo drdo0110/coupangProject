@@ -148,9 +148,11 @@
                         <br>
                     <?php endfor; ?>
                     <button id="url-change" style="margin-left: 4px;">링크 변환</button>
+                    <button id="url-reset" style="float:right;margin-right: 4px;">링크 리셋</button>
                 </div>
                 <div class="textarea-style">
                     <button id="default_setting">기본 문구 추가</button>
+                    <button id="link_add_setting">체크박스 선택 후 문구 추가</button>
                     <textarea name="" id="content"></textarea>
 
                     <div style="float: left;">
@@ -166,6 +168,7 @@
     </body>
 </html>
 <script>
+    //디페일 내용 토글
     $(document).on('click', '#toggle', (e) => {
         let target = $(e.target);
 
@@ -193,18 +196,7 @@
 
     //카피
     $(document).on('click', '#copy', (e) => {
-        // 화면에서 hidden 처리한 input box type을 text로 일시 변환
-        $('#content').attr('type', 'text');
-        // input에 담긴 데이터를 선택
-        $('#content').select();
-        //  clipboard에 데이터 복사
-        var copy = document.execCommand('copy');
-        // input box를 다시 hidden 처리
-        $('#content').attr('type', 'hidden');
-        // 사용자 알림
-        if(copy) {
-            alert("데이터가 복사되었습니다.");
-        }
+        copy($('#content'));
     });
 
     let loading = null;
@@ -298,9 +290,47 @@
         }, 200);
     });
 
+    //체크 박스 추가 후 문구 추가
+    $(document).on('click', '#link_add_setting', (e) => {
+        if ($('.all-data-insert:checked').length == 0) {
+            alert('선택된 상품이 없습니다.');
+            return;
+        }
+
+        let coupangLinks = [];
+        $.each($('.all-data-insert:checked'), (idx, el) => {
+            let $el = $(el);
+
+            coupangLinks.push('"' + $el.parent().parent().find('.link-copy').attr('data-long-link') + '"');
+        });
+
+        $.ajax({
+            url : 'main/coupangLinkChange',
+            data : {
+                coupangLinks : coupangLinks
+            },
+            type : 'post',
+            datatype : 'json',
+            success: (res) => {
+                let data = JSON.parse(res);
+
+                let tag = "안녕하세요! \n\n\n\n";
+                $.each(data, (idx, val) => {
+                    tag += val.shortenUrl + "\n\n\n";
+                });
+                tag += '*쿠팡파트너스 활동의 일환으로 수수료를 받을 수 있습니다';
+
+                $('textarea#content').val('');
+                $('textarea#content').val(tag);
+            }
+        });
+
+    });
+
+    //기본 문구 추가
     $(document).on('click', '#default_setting', (e) => {
         $('textarea#content').val('');
-        $('textarea#content').val("안녕하세요! \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n *쿠팡파트너스 활동의 일환으로 수수료를 받을 수 있습니다");
+        $('textarea#content').val("안녕하세요! \n\n\n\n\n\n\n\n\n\n\n\n\n *쿠팡파트너스 활동의 일환으로 수수료를 받을 수 있습니다");
     });
 
     //쿠팡 상품 검색
@@ -333,21 +363,25 @@
                                         <img style="width:100%;height: 75%;" src="${val.productImage}" alt="">
                                     </a>
                                 </div>
-                                <div style="height:29px; text-align: center;font-size: 12px;display: -webkit-box;word-wrap: break-word; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-overflow: ellipsis; overflow: hidden;">${val.productName}</div>
+                                <div style="height:29px; text-align: center;font-size: 11px;display: -webkit-box;word-wrap: break-word; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-overflow: ellipsis; overflow: hidden;">${val.productName}</div>
                                 <button id="link-copy" class="link-copy" data-long-link="${val.productUrl}" style="margin: 3px 0 0 15px;width: 85px;">링크 복사</button>
                                 <button id="link-add" style="margin: 0px 0 0 6px;width: 85px;">링크 삽입</button>
+                                <input type="hidden" id="short-url">
                             </div>
                         </li>
                     `;
-		})
+                });
 
-		$('.middle-box ul').empty();
+                $('.middle-box ul').empty();
                 $('.middle-box ul').append(tag);
             }
         });
     });
 
+    //쿠팡 변환된 링크 1개 복사
     $(document).on('click', '.link-copy', (e) => {
+        let target = $(e.target);
+
         let coupangLinks = [];
         coupangLinks.push('"' + $('.link-copy').attr('data-long-link') + '"');
 
@@ -358,18 +392,12 @@
             },
             type : 'post',
             datatype : 'json',
-	    success: (res) => {
-	    	console.log(res);
-		return;
+            success: (res) => {
                 let data = JSON.parse(res);
 
-                $.each(data, (idx, val) => {
-                    let coupang_link = $(`#${val.id}-change`);
-                    let coupang_detail_link = $(`.${val.id}-detail-open`);
+                target.parent().find('#short-url').val(data[0].shortenUrl);
 
-                    coupang_link.val(val.shortenUrl);
-                    coupang_detail_link.attr('data-url', val.shortenUrl);
-                })
+                copy(target.parent().find('#short-url'));
             }
         });
     });
@@ -411,6 +439,13 @@
         });
     });
 
+    //쿠팡 링크 리셋
+    $(document).on('click', '#url-reset', (e) => {
+        if (confirm('입력하신 링크 및 변환된 쿠팡링크를 모두 지우시겠습니까?')) {
+            $('.addLink input:text').val('');
+        }
+    });
+
     //쿠팡 디테일 페이지
     $(document).on('click', '[name="coupang-detail"]', (e) => {
         let target = $(e.target);
@@ -437,6 +472,21 @@
 
         window.open(url, '지식인', 'width=1000px,height=700px,top=150px,left=450px');
     });
+
+    function copy(id) {
+        // 화면에서 hidden 처리한 input box type을 text로 일시 변환
+        id.attr('type', 'text');
+        // input에 담긴 데이터를 선택
+        id.select();
+        //  clipboard에 데이터 복사
+        var copy = document.execCommand('copy');
+        // input box를 다시 hidden 처리
+        id.attr('type', 'hidden');
+        // 사용자 알림
+        if(copy) {
+            alert("복사완료");
+        }
+    }
 
     function dataView(contentResult, page = 1) {
         $('.left-box tbody').empty();
