@@ -25,20 +25,20 @@
             height: 95%;
         }
         .left-box {
-            width: 30%;
+            width: calc(100% - 70%);
             height: 100%;
-            float: left;
+	    float: left;
+            margin-right:1%;
         }
         .middle-box {
-            width: 38%;
+            width: calc(70% - 32%);
             height: 95%;
             border: 1px solid #ccc;
             float: left;
-            margin-left: 1%;
         }
         .right-box {
-            width: 30%;
-            height: 100%;
+	    width: calc(32% - 2%);
+	    height: 100%;
             float: right;
         }
         .questionContent-bottom a {
@@ -100,7 +100,7 @@
                 <?php endfor; ?>
             </select>
             <input type="text" name="category" placeholder="카테고리"> <button id="search">조회</button>
-            <input type="text" name="coupang-category" placeholder="쿠팡 카테고리" style="margin-left: 14.1%;"> <button id="coupang-search">쿠팡 조회</button>
+            <input type="text" name="coupang-category" placeholder="쿠팡 카테고리" style="margin-left:16.1%;"> <button id="coupang-search">쿠팡 조회</button>
         </div>
         <div class="wrap">
             <div id="time_end" style="height: 15px;"></div>
@@ -333,13 +333,15 @@
                                         <img style="width:100%;height: 75%;" src="${val.productImage}" alt="">
                                     </a>
                                 </div>
-                                <div style="text-align: center;font-size: 12px;height: 32px;">${val.productName}</div>
+                                <div style="height:29px; text-align: center;font-size: 12px;display: -webkit-box;word-wrap: break-word; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-overflow: ellipsis; overflow: hidden;">${val.productName}</div>
                                 <button id="link-copy" class="link-copy" data-long-link="${val.productUrl}" style="margin: 3px 0 0 15px;width: 85px;">링크 복사</button>
                                 <button id="link-add" style="margin: 0px 0 0 6px;width: 85px;">링크 삽입</button>
                             </div>
                         </li>
                     `;
-                })
+		})
+
+		$('.middle-box ul').empty();
                 $('.middle-box ul').append(tag);
             }
         });
@@ -356,11 +358,11 @@
             },
             type : 'post',
             datatype : 'json',
-            success: (res) => {
+	    success: (res) => {
+	    	console.log(res);
+		return;
                 let data = JSON.parse(res);
 
-                console.log(data);
-                return;
                 $.each(data, (idx, val) => {
                     let coupang_link = $(`#${val.id}-change`);
                     let coupang_detail_link = $(`.${val.id}-detail-open`);
