@@ -240,8 +240,9 @@ class Main extends CI_Controller {
         $message = $datetime.$method.str_replace("?", "", $path);
 
         // Replace with your own ACCESS_KEY and SECRET_KEY
-        $ACCESS_KEY = "d8cdbc33-630d-4d99-80a4-2a099d2c6597";
-        $SECRET_KEY = "0d04f98a14c7defc51809eb3fbc3617b7fbb17f9";
+        $coupangAccoungInfo = (object) $this->coupangAccoungInfo->getInfo();
+        $ACCESS_KEY = $coupangAccoungInfo->accessKey;
+        $SECRET_KEY = $coupangAccoungInfo->secretKey;
 
         $algorithm = "HmacSHA256";
 
