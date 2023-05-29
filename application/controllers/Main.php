@@ -90,8 +90,6 @@ class Main extends CI_Controller {
     }
 
     public function naver_login_callback() {
-        $this->getPassCheck();
-
          $client_id = self::CLIENT_ID;
          $client_secret = self::CLIENT_SECRET;
 
@@ -113,8 +111,6 @@ class Main extends CI_Controller {
     }
 
     public function naver_info($response) {
-        $this->getPassCheck();
-
         $access_token = $response->access_token;
 
         $token = $access_token;
@@ -144,7 +140,7 @@ class Main extends CI_Controller {
 
             $this->session->set_userdata($sessionData);
 
-            $location_url = $_SERVER['REMOTE_ADDR'] == '127.0.0.1' ? 'http://127.0.0.1/main' : 'http://34.105.106.219/coupangProject';
+            $location_url = $_SERVER['REMOTE_ADDR'] == '127.0.0.1' ? 'http://127.0.0.1/main/contents' : 'http://34.105.106.219/coupangProject/main/contents';
 
             header("Location: {$location_url}");
             exit;
@@ -154,8 +150,6 @@ class Main extends CI_Controller {
     }
 
     public function naver_logout() {
-        $this->getPassCheck();
-
         $this->session->sess_destroy();
         $location_url = $_SERVER['REMOTE_ADDR'] == '127.0.0.1' ? 'http://127.0.0.1/main' : 'http://34.105.106.219/coupangProject';
 
