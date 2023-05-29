@@ -8,22 +8,11 @@ class Main extends CI_Controller {
     const LOCAL_NAVER_LOGIN_CALLBACK_URL = 'http://127.0.0.1/main/naver_login_callback';
     const COUPANG_ID = 'AF9936219';
 
-    public function jnh() {
-	    $url = 'https://link.coupang.com/re/AFFSDP?lptag=AF9936219&pageKey=1552741507&itemId=2656122108&vendorItemId=70646860854&traceid=V0-153-de36aaf1889d2a60&requestid=20230524012807070132680&token=31850C%7CMIXED';
-
-    	$url = str_replace('//link', '//www', $url);
-    	$url = str_replace('/re/', '/vp/products/', $url);
-
-    	$explodeUrl = explode('AFFSDP?', $url);
-
-    	parse_str($explodeUrl[1], $arrParams);
-
-    	$page_key = $arrParams['pageKey'];
-    	unset($arrParams['pageKey']);
-    	$params = http_build_query($arrParams, '&');
-
-    	$url = $explodeUrl[0] . $page_key . '?' . $params;
-    	echo $url;
+    function __construct()
+    {
+        parent::__construct();
+        $this->load->model('coupang_account_info_model', 'coupang');
+        $this->load->model('coupang_pass_model', 'pass');
     }
 
     public function test() {
@@ -34,18 +23,60 @@ class Main extends CI_Controller {
         print_r($this->session->all_userdata());
     }
 
+    public function getPassCheck() {
+        if ( ! $this->session->userdata('pass')) {
+            redirect('/');
+            return;
+        }
+    }
+
     public function index() {
-        $data = [];
+        $this->load->view('crawling/login', null);
+    }
 
-        $client_id = self::CLIENT_ID; // 위에서 발급받은 Client ID 입력
-        $redirectURI = urlencode($_SERVER['REMOTE_ADDR'] == '127.0.0.1' ? self::LOCAL_NAVER_LOGIN_CALLBACK_URL : self::NAVER_LOGIN_CALLBACK_URL); //자신의 Callback URL 입력
-        $state = md5(microtime() . mt_rand());
-        $data['apiURL'] = "https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=".$client_id."&redirect_uri=".$redirectURI."&state=".$state;
+    public function contents() {
+        $oPost = (object) $this->input->post(null);
 
-        $this->load->view('crawling/contents', $data);
+        $data = $this->pass->getCoupangPass();
+        if ( ! isset($oPost->pass) || $data->pass != $oPost->pass) {
+            redirect('/');
+            return;
+        } else {
+            $this->session->set_userdata(['pass' => true]);
+        }
+
+        $this->getPassCheck();
+
+        if ( ! empty($oPost->user)) {
+            $coupangAccountInfo = (object) $this->coupang->getCoupangAccountInfo($oPost);
+
+            $sessionData = [
+                'user'                  => $oPost->user,
+                'coupang_id'            => $coupangAccountInfo->coupang_id,
+                'coupang_access_token'  => $coupangAccountInfo->access_key,
+                'coupang_secret_key'    => $coupangAccountInfo->secret_key,
+            ];
+
+            $this->session->set_userdata($sessionData);
+
+            $data = [];
+            $client_id = self::CLIENT_ID; // 위에서 발급받은 Client ID 입력
+            $redirectURI = urlencode($_SERVER['REMOTE_ADDR'] == '127.0.0.1' ? self::LOCAL_NAVER_LOGIN_CALLBACK_URL : self::NAVER_LOGIN_CALLBACK_URL); //자신의 Callback URL 입력
+            $state = md5(microtime() . mt_rand());
+            $data['apiURL'] = "https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=".$client_id."&redirect_uri=".$redirectURI."&state=".$state;
+
+            $data['cnt'] = $coupangAccountInfo->cnt;
+            $data['end_time'] = $coupangAccountInfo->end_time;
+
+            $this->load->view('crawling/contents', $data);
+        } else {
+            $this->load->view('crawling/login', null);
+        }
     }
 
     public function crawling() {
+        $this->getPassCheck();
+
         $oGet = (object) $this->input->get(null, true);
 
         if (strlen($oGet->category) == 0) {
@@ -59,6 +90,8 @@ class Main extends CI_Controller {
     }
 
     public function naver_login_callback() {
+        $this->getPassCheck();
+
          $client_id = self::CLIENT_ID;
          $client_secret = self::CLIENT_SECRET;
 
@@ -80,6 +113,8 @@ class Main extends CI_Controller {
     }
 
     public function naver_info($response) {
+        $this->getPassCheck();
+
         $access_token = $response->access_token;
 
         $token = $access_token;
@@ -119,6 +154,8 @@ class Main extends CI_Controller {
     }
 
     public function naver_logout() {
+        $this->getPassCheck();
+
         $this->session->sess_destroy();
         $location_url = $_SERVER['REMOTE_ADDR'] == '127.0.0.1' ? 'http://127.0.0.1/main' : 'http://34.105.106.219/coupangProject';
 
@@ -126,42 +163,87 @@ class Main extends CI_Controller {
         exit;
     }
 
+    //쿠팡 검색 API
     public function coupangProductList() {
+        $this->getPassCheck();
+
+        date_default_timezone_set('Asia/Seoul');
+
+        $sess = $this->session->all_userdata();
+        $oGet = (object) $this->input->get(null);
+        $keyword = $oGet->keyword;
+
+        $update['where']['seq'] = $this->session->userdata('user');
+
+        //1시간 지나면 리셋
+        if (isset($sess['endTime']) && $sess['endTime'] < date('His')) {
+            unset($_SESSION['cnt']);
+            unset($_SESSION['endTime']);
+            unset($sess['cnt']);
+            unset($sess['endTime']);
+        }
+
+        //처음 또는 1시간 리셋 후 시도하면 카운트, 1시간뒤 시간 추가
+        if (empty($sess['cnt']) || empty($sess['endTime'])) {
+            $sess['cnt'] = 0;
+            $sess['endTime'] = date('His', strtotime('+1Minute')); //+1Hours
+        }
+
+        $sess['cnt'] += 1;
+        $update['set']['cnt'] = $sess['cnt'];
+        $update['set']['end_time'] = $sess['endTime'];
+        $this->coupang->accountUpdate($update);
+        $this->session->set_userdata($sess);
+
+        if (isset($sess['cnt']) && $sess['cnt'] > 10) {
+            $status = false;
+            $msg = '이미 검색을 10번 했습니다.';
+
+            $data = [
+                'status' => $status,
+                'msg'    => $msg,
+            ];
+            echo json_encode($data);
+            return;
+        }
 
         $result = json_decode($this->test());
-
-        echo json_encode($result->data->productData);
-
+        $result->data->cnt = $sess['cnt'];
+        echo json_encode($result->data);
         exit;
-        $oGet = (object) $this->input->get(null);
-        $keyword = urlencode($oGet->keyword);
 
-        $url = "/v2/providers/affiliate_open_api/apis/openapi/products/search?keyword={$keyword}&limit=9";
+        // $keyword = urlencode($keyword);
 
-        $result = $this->get_coupang_curl('GET', $url);
-        $result = json_decode($result);
+        // $url = "/v2/providers/affiliate_open_api/apis/openapi/products/search?keyword={$keyword}&limit=9";
 
+        // $result = $this->get_coupang_curl('GET', $url);
+        // $result = json_decode($result);
 
+        // echo json_encode($result->data->productData);
     }
 
     public function imgLinkChange($url) {
-	   $url = str_replace('//link', '//www', $url);
-       $url = str_replace('/re/', '/vp/products/', $url);
+        $this->getPassCheck();
 
-       $explodeUrl = explode('AFFSDP?', $url);
+        $url = str_replace('//link', '//www', $url);
+        $url = str_replace('/re/', '/vp/products/', $url);
 
-       parse_str($explodeUrl[1], $arrParams);
+        $explodeUrl = explode('AFFSDP?', $url);
 
-       $page_key = $arrParams['pageKey'];
-       unset($arrParams['pageKey']);
-       $params = http_build_query($arrParams, '&');
+        parse_str($explodeUrl[1], $arrParams);
 
-	   $url = $explodeUrl[0] . $page_key . '?' . $params . '"';
+        $page_key = $arrParams['pageKey'];
+        unset($arrParams['pageKey']);
+        $params = http_build_query($arrParams, '&');
 
-	   return $url;
+        $url = $explodeUrl[0] . $page_key . '?' . $params . '"';
+
+        return $url;
 }
 
     public function coupangLinkChange() {
+        $this->getPassCheck();
+
         $url = '/v2/providers/affiliate_open_api/apis/openapi/v1/deeplink';
 
         $oPost = (object) $this->input->post(null);
@@ -240,9 +322,8 @@ class Main extends CI_Controller {
         $message = $datetime.$method.str_replace("?", "", $path);
 
         // Replace with your own ACCESS_KEY and SECRET_KEY
-        $coupangAccoungInfo = (object) $this->coupangAccoungInfo->getInfo();
-        $ACCESS_KEY = $coupangAccoungInfo->accessKey;
-        $SECRET_KEY = $coupangAccoungInfo->secretKey;
+        $ACCESS_KEY = $this->session->userdata('coupang_access_token');
+        $SECRET_KEY = $this->session->userdata('coupang_secret_key');
 
         $algorithm = "HmacSHA256";
 

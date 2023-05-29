@@ -47,6 +47,12 @@ class Crawling {
                     $questionContent = $detailPage->find('.question-content', 0)->find('.c-heading__content', 0)->plaintext; //질문
                 }
 
+                if ($questionContent == '') {
+                    if (sizeof($detailPage->find('.question-content')) > 0 && ! empty($detailPage->find('.question-content', 0)->find('div.title', 0)->plaintext)) {
+                        $questionContent = $detailPage->find('.question-content', 0)->find('div.title', 0)->plaintext; //질문
+                    }
+                }
+
                 if (strpos($questionContent, '광고') !== false) {
                     continue;
                 }
@@ -83,24 +89,6 @@ class Crawling {
 
         return $result;
     }
-
-/*
-https://kin.naver.com/qna/detail.naver?d1id=5&dirId=50602&docId=445911448&qb=7LaU7LKc&enc=utf8&section=kin.qna.all&rank=46&search_sort=3&spq=0
-
-https://kin.naver.com/ajax/detail/registerAnswerForSmartEditorOne.naver
-
-clientAppCode: kinpc001
-dirId: 50602
-docId: 445911448
-svc: KIN
-title: 닌텐도 스위치  게임 추천해주세요!
-documentJson: {"document":{"version":"2.5.0","theme":"default","language":"ko-KR","components":[{"id":"SE-517320b3-69af-45d3-b81b-0758f6c734ff","layout":"default","value":[{"id":"SE-76a7680f-31cb-467f-8211-349e4973d1a2","nodes":[{"id":"SE-17f883ee-e74a-449c-8667-288617598236","value":"포켓몬스터 시리즈로 시작해보시는건 어떤가요 ㅎㅎㅎㅎ","@ctype":"textNode"}],"@ctype":"paragraph"}],"@ctype":"text"}]},"documentId":""}
-openYn: Y
-rssYn: Y
-inputDevice: PC
-tempField: MBij1XU=
-mdu: KxM/FAurKqumaAg9KVvdFAElKxudFA2GMBij1XUG3EpH6JkuEv0xtvwBLt==
- */
 
     private function get_curl($url) {
         $options = [

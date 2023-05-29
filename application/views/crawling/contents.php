@@ -100,7 +100,12 @@
                 <?php endfor; ?>
             </select>
             <input type="text" name="category" placeholder="카테고리"> <button id="search">조회</button>
-            <input type="text" name="coupang-category" placeholder="쿠팡 카테고리" style="margin-left:16.1%;"> <button id="coupang-search">쿠팡 조회</button>
+            <input type="text" name="coupang-category" placeholder="쿠팡 카테고리" style="margin-left:16.1%;"> <button id="coupang-search">
+            쿠팡 조회</button>
+            <div style="font-size:12px;display: contents;">
+                검색 횟수 : <div id="cnt" style="display: contents;"><?=$cnt; ?> | </div>
+                초기화 : <?=$end_time; ?>
+            </div>
         </div>
         <div class="wrap">
             <div id="time_end" style="height: 15px;"></div>
@@ -144,8 +149,11 @@
                 </div>
                 <div class="addLink">
                     <?php for($i = 1; $i <= 5; $i++): ?>
-                        <input type="text" id="coupang-url-<?=$i?>" style="width: 56%;" placeholder="일반 링크"> <input type="text" id="coupang-url-<?=$i?>-change" style="width: 39%;" placeholder="변환 된 링크" readonly>
-                        <br>
+                        <div>
+                            <input type="text" data-type="default" id="coupang-url-<?=$i?>" style="width: 56%;" placeholder="일반 링크"> <input type="text" id="coupang-url-<?=$i?>-change" style="width: 31%;" placeholder="변환 된 링크" readonly>
+                            <button name="short-link-copy">복사</button>
+                            <br>
+                        </div>
                     <?php endfor; ?>
                     <button id="url-change" style="margin-left: 4px;">링크 변환</button>
                     <button id="url-reset" style="float:right;margin-right: 4px;">링크 리셋</button>
@@ -168,7 +176,26 @@
     </body>
 </html>
 <script>
-    //디페일 내용 토글
+    // $(document).ready(() => {
+    //     setInterval(() => {
+    //         diffDay();
+    //     }, 1000);
+    // });
+
+    // function diffDay() {
+    //     const masTime = new Date("2023-05-28");
+    //     const todayTime = new Date();
+
+    //     const diff = masTime - todayTime;
+
+    //     const diffHour = Math.floor((diff / (1000*60*60)) % 24);
+    //     const diffMin = Math.floor((diff / (1000*60)) % 60);
+    //     const diffSec = Math.floor(diff / 1000 % 60);
+
+    //     remainTime.innerText = `${diffHour}시간 ${diffMin}분 ${diffSec}초`;
+    // }
+
+    //디테일 내용 토글
     $(document).on('click', '#toggle', (e) => {
         let target = $(e.target);
 
@@ -199,6 +226,11 @@
         copy($('#content'));
     });
 
+    $(document).on('click', '[name="short-link-copy"]', (e) => {
+        copy($(e.target).parent().find($('[id*="change"]')));
+        $(e.target).parent().find($('[id*="change"]')).attr('type', 'text');
+    })
+
     let loading = null;
     let start = false;
     let contentResult = [];
@@ -224,7 +256,7 @@
         $('#time_end').empty();
 
         $.ajax({
-            url : 'main/crawling',
+            url : 'crawling',
             data : {
                 category : category,
                 show_page : show_page
@@ -258,6 +290,7 @@
     });
 
     //상세 보기
+    let clickDetail = '';
     $(document).on('click', '.detail', (e) => {
         let target = $(e.target),
             tr = target.parents('tr');
@@ -269,8 +302,7 @@
         $('.questionContent-bottom').append('<a href="' + tr.data('link') + '" target="_blank">' + tr.data('link').trim() + '</a>');
         $('.questionContent-bottom').append('<button id="toggle" style="float:right;" data-type="open">펼치기</button>');
 
-        $('#set').attr('data-link', '');
-        $('#set').attr('data-link', tr.data('link'));
+        clickDetail = tr.data('link');
 
         $('tr').css('background', 'none');
         tr.css('background', 'beige');
@@ -305,7 +337,7 @@
         });
 
         $.ajax({
-            url : 'main/coupangLinkChange',
+            url : 'coupangLinkChange',
             data : {
                 coupangLinks : coupangLinks
             },
@@ -341,17 +373,22 @@
         }
 
         $.ajax({
-            url : 'main/coupangProductList',
+            url : 'coupangProductList',
             data : {
                 keyword : $('[name="coupang-category"]').val()
             },
-            type : 'post',
+            type : 'get',
             datatype : 'json',
             success: (res) => {
                 let data = JSON.parse(res);
 
+                if (typeof data.status != 'undefined' && data.status == false) {
+                    alert(data.msg);
+                    return;
+                }
+
                 let tag = '';
-                $.each(data, (idx, val) => {
+                $.each(data.productData, (idx, val) => {
                     tag += `
                         <li>
                             <div>
@@ -365,7 +402,7 @@
                                 </div>
                                 <div style="height:29px; text-align: center;font-size: 11px;display: -webkit-box;word-wrap: break-word; -webkit-line-clamp: 2; -webkit-box-orient: vertical; text-overflow: ellipsis; overflow: hidden;">${val.productName}</div>
                                 <button id="link-copy" class="link-copy" data-long-link="${val.productUrl}" style="margin: 3px 0 0 15px;width: 85px;">링크 복사</button>
-                                <button id="link-add" style="margin: 0px 0 0 6px;width: 85px;">링크 삽입</button>
+                                <button id="item-click" class="item-click" style="margin: 0px 0 0 6px;width: 85px;">선택 하기</button>
                                 <input type="hidden" id="short-url">
                             </div>
                         </li>
@@ -374,6 +411,8 @@
 
                 $('.middle-box ul').empty();
                 $('.middle-box ul').append(tag);
+
+                $('#cnt').text(data.cnt);
             }
         });
     });
@@ -386,7 +425,7 @@
         coupangLinks.push('"' + $('.link-copy').attr('data-long-link') + '"');
 
         $.ajax({
-            url : 'main/coupangLinkChange',
+            url : 'coupangLinkChange',
             data : {
                 coupangLinks : coupangLinks
             },
@@ -402,15 +441,37 @@
         });
     });
 
+    //아이템 선택
+    $(document).on('click', '.item-click', (e) => {
+        let target = $(e.target);
+
+        if (target.parent().find('input:checkbox').is(':checked')) {
+            target.parent().find('input:checkbox').attr('checked', false);
+            target.text('선택 하기');
+        } else {
+            target.parent().find('input:checkbox').attr('checked', true);
+            target.text('선택 해제');
+        }
+    });
+
     //쿠팡 링크 변경
     $(document).on('click', '#url-change', (e) => {
-        if ($('.addLink input').length == 0) {
+        let l = $('.addLink > div > input[data-type="default"]');
+
+        let cnt = 0;
+        $.each(l, (idx, el) => {
+            if ($(el).val() != '') {
+                cnt++;
+            }
+        })
+
+        if (cnt == 0) {
             alert('변경 할 링크가 없습니다.');
             return;
         }
 
         let coupangLinks = [];
-        $.each($('.addLink input'), (idx, el) => {
+        $.each(l, (idx, el) => {
             let $el = $(el);
 
             if ($el.val() != '') {
@@ -419,7 +480,7 @@
         });
 
         $.ajax({
-            url : 'main/coupangLinkChange',
+            url : 'coupangLinkChange',
             data : {
                 coupangLinks : coupangLinks
             },
@@ -454,15 +515,14 @@
 
     //지식인 답변 창 오픈
     $(document).on('click', '#set', (e) => {
-        let target = $(e.target),
-            link = target.data('link');
+        e.preventDefault();
 
-        if (link == '' || link == null) {
+        if (clickDetail == '' || clickDetail == null) {
             alert('선택된 값이 없습니다');
             return;
         }
 
-        const queryString = new URL(link);
+        const queryString = new URL(clickDetail);
         const urlParams = queryString.searchParams;
 
         let dirId = urlParams.get('dirId');

@@ -1,8 +1,8 @@
-<?php
-  //naver_login.php
-    $client_id = "FbIzOc0TtOQtZYtgtk5l"; // 위에서 발급받은 Client ID 입력
-    $redirectURI = urlencode("FbIzOc0TtOQtZYtgtk5l"); //자신의 Callback URL 입력
-    $state = "RAMDOM_STATE";
-    $apiURL = "https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=".$client_id."&redirect_uri=".$redirectURI."&state=".$state;
-?>
-<a href="<?php echo $apiURL ?>"><img height="50" src="http://static.nid.naver.com/oauth/small_g_in.PNG"/></a>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<form action="main/contents" method="post">
+    나모<input type="radio" name="user" value="1" checked>
+    또니<input type="radio" name="user" value="2">
+    <input type="password" name="pass">
+    <button>시작</button>
+</form>
